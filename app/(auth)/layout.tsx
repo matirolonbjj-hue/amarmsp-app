@@ -2,18 +2,20 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { type Session } from "@supabase/supabase-js";
 import { Sidebar } from "@/components/layout/sidebar";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) router.replace("/login");
+    import("@/lib/supabase").then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
+        if (!session) router.replace("/login");
+      });
     });
-  }, [router, supabase]);
+  }, [router]);
 
   return (
     <div className="flex min-h-screen bg-background">
