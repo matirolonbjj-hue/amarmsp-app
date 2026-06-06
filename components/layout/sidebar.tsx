@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,6 +28,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { open, close } = useSidebar();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -35,7 +37,14 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-30 h-screen w-[260px] flex flex-col bg-[#0D6E7A] text-white">
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-30 h-screen w-[260px] flex flex-col bg-[#0D6E7A] text-white transition-transform duration-300",
+        // Mobile: escondida por padrão, aparece quando open=true
+        // Desktop (lg+): sempre visível
+        open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}
+    >
       <div className="flex items-center justify-center px-6 py-5 border-b border-white/10">
         <Image
           src="/logo_white.png"
@@ -54,6 +63,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={close}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                 isActive
@@ -71,6 +81,7 @@ export function Sidebar() {
       <div className="px-3 py-4 border-t border-white/10 space-y-1">
         <Link
           href="/configuracoes"
+          onClick={close}
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
             pathname === "/configuracoes"

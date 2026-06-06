@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, HelpCircle, Search } from "lucide-react";
+import { Bell, HelpCircle, Search, Menu } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { Input } from "@/components/ui/input";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 interface HeaderProps {
   searchPlaceholder?: string;
@@ -10,8 +11,19 @@ interface HeaderProps {
 }
 
 export function Header({ searchPlaceholder = "Buscar...", userName = "Gerente" }: HeaderProps) {
+  const { toggle } = useSidebar();
+
   return (
-    <header className="sticky top-0 z-20 flex items-center gap-4 bg-background/95 backdrop-blur border-b border-border px-6 h-14">
+    <header className="sticky top-0 z-20 flex items-center gap-3 bg-background/95 backdrop-blur border-b border-border px-4 h-14">
+      {/* Hamburguer — só aparece no mobile */}
+      <button
+        onClick={toggle}
+        className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+        aria-label="Abrir menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
       <div className="flex-1 max-w-md relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
