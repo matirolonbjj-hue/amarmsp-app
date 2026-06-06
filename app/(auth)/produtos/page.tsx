@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Plus, Search, Pencil, AlertTriangle } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -135,6 +135,17 @@ export default function ProdutosPage() {
     loadProdutos();
   }
 
+
+  async function handleDeleteProduto(id: string, nome: string) {
+    if (!window.confirm(`Excluir "${nome}"? Esta ação não pode ser desfeita.`)) return;
+    const { error } = await supabase.from("produtos").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Produto excluído." });
+      loadProdutos();
+    }
+  }
 
   async function handleSaveCat() {
     if (!novaCat.trim()) return;
@@ -268,6 +279,12 @@ export default function ProdutosPage() {
                               className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                             >
                               <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduto(p.id, p.nome)}
+                              className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </td>

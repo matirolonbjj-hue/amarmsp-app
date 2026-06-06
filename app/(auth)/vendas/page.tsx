@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Trash2, ChevronRight, Banknote, CreditCard, QrCode } from "lucide-react";
+import { Trash2, Banknote, CreditCard, QrCode } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,18 @@ export default function VendasPage() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadHistorico(); loadProdutos(); loadTaxas(); }, []);
+
+  async function handleDeleteVenda(id: string) {
+    if (!window.confirm("Excluir esta venda? Esta ação não pode ser desfeita.")) return;
+    await supabase.from("itens_venda").delete().eq("venda_id", id);
+    const { error } = await supabase.from("vendas").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao excluir venda", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Venda excluída." });
+      loadHistorico();
+    }
+  }
 
   async function loadHistorico() {
     const { data } = await supabase
@@ -229,7 +241,7 @@ export default function VendasPage() {
                 <p className="text-sm text-muted-foreground">Nenhuma venda registrada.</p>
               ) : (
                 historico.map((v) => (
-                  <div key={v.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border hover:bg-muted/40 cursor-pointer transition-colors">
+                  <div key={v.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border hover:bg-muted/40 transition-colors group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                         <span className="text-[10px] font-mono bg-[#1B9AAA]/10 text-[#1B9AAA] px-1.5 py-0.5 rounded">
@@ -245,7 +257,13 @@ export default function VendasPage() {
                       <p className="text-sm font-medium truncate">{getHistLabel(v)}</p>
                       <p className="text-sm font-semibold text-[#1B9AAA]">{formatCurrency(v.total)}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <button
+                      onClick={() => handleDeleteVenda(v.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-red-50 transition-all text-muted-foreground hover:text-red-600 shrink-0"
+                      title="Excluir venda"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ))
               )}
